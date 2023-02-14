@@ -1,0 +1,59 @@
+﻿<Window x:Class="MKVToolNixWrapper.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:MKVToolNixWrapper"
+        mc:Ignorable="d"
+        Title="MKVToolNixWrapper" Height="657" Width="1577"
+        DataContext="{Binding RelativeSource={RelativeSource Self}}"
+        >
+    <Grid>
+        <Button x:Name="BrowseFolderButton" Content="Browse" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Height="28" Width="91" Click="Button_Click"/>
+        <Label x:Name="SelectedFolderPathLabel" Content="Please select a directory to process.&#xD;&#xA;" HorizontalAlignment="Left" Margin="106,11,0,0" VerticalAlignment="Top" Width="684"/>
+
+
+
+        <ListBox x:Name="FileListBox" ItemsSource="{Binding FileList}" SelectionMode="Multiple" Margin="32,85,789,291">
+            <ListBox.ItemTemplate>
+                <DataTemplate>
+                    <CheckBox Content="{Binding FilePath}" IsChecked="{Binding Include, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Click="CheckBox_Click" />
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+        </ListBox>
+
+
+
+        <DataGrid x:Name="TrackGrid" ItemsSource="{Binding TrackList}" AutoGenerateColumns="False" Margin="803,85,28,291" CanUserDeleteRows="False" CanUserAddRows="False">
+            <DataGrid.Columns>
+                <DataGridCheckBoxColumn Header="Include" Binding="{Binding Include}" />
+                <DataGridTextColumn Header="Id" Binding="{Binding Id}" IsReadOnly="True" />
+                <DataGridTextColumn Header="Name" Binding="{Binding Name}" />
+                <DataGridTextColumn Header="Language" Binding="{Binding Language}" IsReadOnly="True"/>
+                <DataGridTextColumn Header="Type" Binding="{Binding Type}" IsReadOnly="True"/>
+                <DataGridTextColumn Header="Codec" Binding="{Binding Codec}" IsReadOnly="True"/>
+                <DataGridCheckBoxColumn Header="Default" Binding="{Binding Default}" />
+                <DataGridCheckBoxColumn Header="Forced" Binding="{Binding Forced}" />
+            </DataGrid.Columns>
+        </DataGrid>
+
+
+        <Label Content="Output:" HorizontalAlignment="Left" Margin="32,355,0,0" VerticalAlignment="Top" Height="25"/>
+        <TextBox x:Name="OutputTextBox" 
+                 IsReadOnly="True" ScrollViewer.HorizontalScrollBarVisibility="Auto"
+                 ScrollViewer.VerticalScrollBarVisibility="Auto"
+                 ScrollViewer.CanContentScroll="True"
+                 HorizontalAlignment="Center"
+                 Margin="0,391,0,0" 
+                 TextWrapping="Wrap"
+                 VerticalAlignment="Top"
+                 Width="1513" Height="219"/>
+        <Button x:Name="AnalyseButton" Content="Analyse" HorizontalAlignment="Left" Margin="1354,9,0,0" VerticalAlignment="Top" Height="29" Width="92" Click="AnalyseButton_Click"/>
+
+        <Label Content="Tracks" HorizontalAlignment="Left" Margin="793,58,0,0" VerticalAlignment="Top" Width="129" Height="27"/>
+
+
+        <Button x:Name="BatchButton" Content="Start Batch" HorizontalAlignment="Left" Margin="1451,9,0,0" VerticalAlignment="Top" Height="29" Width="98" Click="BatchButton_Click"/>
+        <Label Content="File list" HorizontalAlignment="Left" Margin="32,58,0,0" VerticalAlignment="Top" Width="129" Height="27"/>
+    </Grid>
+</Window>

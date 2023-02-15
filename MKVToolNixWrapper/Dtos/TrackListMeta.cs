@@ -1,6 +1,6 @@
 ﻿namespace MKVToolNixWrapper.Dtos
 {
-    public class TrackList
+    public class TrackListMeta
     {
         public double Id { get; set; }
         public string Name { get; set; }

@@ -34,7 +34,6 @@
         <Button x:Name="SelectAllTrackButton" Grid.Column="3" Grid.Row="1" Content="Select All" Width="80" HorizontalAlignment="Right" Margin="0,0,6,2" Click="SelectAllTrackButton_Click"/>
         <Button x:Name="SelectNoneTrackButton" Grid.Column="3" Grid.Row="1" Content="Select None" Width="80" HorizontalAlignment="Right" Margin="0,0,95,2" Click="SelectNoneTrackButton_Click"/>
 
-
         <ListBox x:Name="FileListBox" ItemsSource="{Binding FileList}" SelectionMode="Multiple" Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2">
             <ListBox.ItemTemplate>
                 <DataTemplate>

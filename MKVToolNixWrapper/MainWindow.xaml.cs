@@ -24,7 +24,7 @@ namespace MKVToolNixWrapper
     public partial class MainWindow : Window
     { 
         private List<FileMeta> FileMetaList { get; set; } = new List<FileMeta>();
-        private List<TrackList> TrackList { get; set; } = new List<TrackList>();
+        private List<TrackListMeta> TrackList { get; set; } = new List<TrackListMeta>();
         private static readonly string MkvMergePath = "C:\\Program Files\\MKVToolNix\\mkvmerge.exe";
 
         public MainWindow()
@@ -199,7 +199,7 @@ namespace MKVToolNixWrapper
 
                         // Using track info from first file, will later be applied to the track grid given it passes
                         TrackList = MKVInfo.tracks.OrderBy(y => y.id).ThenBy(z => z.properties.track_name)
-                            .Select(x => new TrackList
+                            .Select(x => new TrackListMeta
                             {
                                 Id = x.id,
                                 Name = x.properties.track_name,

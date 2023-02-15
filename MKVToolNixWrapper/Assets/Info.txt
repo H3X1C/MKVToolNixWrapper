@@ -80,3 +80,7 @@ A) The "forced flag" is a metadata attribute that can be assigned to certain sub
 
 -------- Changelog -------
 15/02/2023 - v1.0.0.0 - Initial release
+
+15/02/2023 - v1.0.0.1 - Code cleanup
+	Removed uneeded usings
+	Renamed and better organised DTO's

@@ -17,8 +17,8 @@ End result is reduced file size and the convenience of opening the file in your 
 ----- Best Practices -----
 Be consistent with naming! Here are some examples of practices to follow:
 e.g. 
-	Subtitle naming: 'English Subs'
-	Video naming: removing video name if it's just being used for branding as it serves no purpose
+	Subtitle naming: 'English Full'
+	Video naming: removing video name if it's just being used for branding as it serves no purpose, media players will just call it Track 1
 	Audio naming: 'Japanese E-AC-3' with E-AC-3 being the codec used for the audio
 
 Only set the forced flag for subtitles! It makes sense to set this flag on english subtitles if the audio track is Japanese and you are are an english speaker.
@@ -57,7 +57,7 @@ A) This is simply the display name for the given track that is shown in your med
 
 Q) What does the 'Language' column mean in the Tracks table?
 A) Each track can be assigned a language code that identifies the language of the content in that track.
-	This language code can help media players and other software to select and display the appropriate language for the user, such as for subtitles or audio tracks. (You cannot edit this id in this tool)
+	This language code can help media players and other software to select and display the appropriate language for the user, such as for subtitles or audio tracks. You may edit this field!
 
 Q) What does the 'Type' column mean in the Tracks table?
 A) Each track can be assigned a track type that identifies the type of content in that track. This information is used by media players and other software to identify how to play and display the content in the track.
@@ -77,3 +77,6 @@ Q) What does the 'Forced Flag' column mean in the Tracks table?
 A) The "forced flag" is a metadata attribute that can be assigned to certain subtitle tracks to indicate that the subtitles in that track should always be displayed, even if the user has turned off subtitles.
 	It is typically used for subtitles that are essential to the understanding of the content.
 	Note: Not all media players respect this flag and this flag is only applicable to Subtitle tracks!
+
+-------- Changelog -------
+15/02/2023 - v1.0.0.0 - Initial release

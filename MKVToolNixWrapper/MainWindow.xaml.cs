@@ -2,11 +2,13 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Media;
 using System.Reflection;
 using System.Text.Json;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -148,7 +150,7 @@ namespace MKVToolNixWrapper
             {
                 WriteOutputLine("Analysis has started...");
 
-                Dispatcher.Invoke(() => BatchButton.IsEnabled = false);
+                Dispatcher.Invoke(() => ToggleUI(false));
 
                 // Clear an failed analysis files
                 foreach (var file in FileMetaList)
@@ -245,6 +247,8 @@ namespace MKVToolNixWrapper
 
                 // unset mouse spinner
                 Dispatcher.Invoke(() => Mouse.OverrideCursor = null);
+                // Unlock ui
+                Dispatcher.Invoke(() => ToggleUI(true));
 
                 if (allPassed)
                 {
@@ -257,6 +261,8 @@ namespace MKVToolNixWrapper
                 }
                 else
                 {
+                    Dispatcher.Invoke(() => BatchButton.IsEnabled = false);
+                    Dispatcher.Invoke(() => TrackGrid.IsEnabled = false);
                     WriteOutputLine($"Analysis Completed - Outcome: FAIL");
                     WriteOutputLine($"Explanation: Unable to unlock batching as the selected files have differing sub/audio/video track setup, proceeding would result in missmatched tracks");
                     WriteOutputLine($"Resolution: Deselect the MKV's that have FAILED and process them on their own. Only once all selected files PASS is the batch button unlocked");
@@ -364,6 +370,7 @@ namespace MKVToolNixWrapper
 
         private async void BatchButton_Click(object sender, RoutedEventArgs e)
         {
+            ToggleUI(false);
             await Task.Run(() =>
             {
                 WriteOutputLine("Batching process has started...");
@@ -407,6 +414,7 @@ namespace MKVToolNixWrapper
                 mergeCommandString += string.Join(" ", TrackList.Where(x => x.Include).Select(x => $"--track-name {x.Id}:\"{x.Name}\"")) + " ";
                 mergeCommandString += string.Join(" ", TrackList.Where(x => x.Include).Select(x => $"--default-track {x.Id}:{(x.Default ? "yes" : "no")}")) + " ";
                 mergeCommandString += string.Join(" ", TrackList.Where(x => x.Include).Select(x => $"--forced-track {x.Id}:{(x.Forced ? "yes" : "no")}")) + " ";
+                mergeCommandString += string.Join(" ", TrackList.Where(x => x.Include).Select(x => $"--language {x.Id}:{x.Language}")) + " ";
 
                 foreach (var filePath in FileMetaList.Where(x => x.Include))
                 {
@@ -471,6 +479,58 @@ namespace MKVToolNixWrapper
                 WriteOutputLine("Batching process has completed!");
                 PlayNotificationSound();
             });
+            ToggleUI(true);
+        }
+
+        // ToDo: Instead of a dumb toggle have a enum that dictates stage, dependent on the stage activate x,y,z ui element
+        private void ToggleUI(bool enable)
+        {
+            FileListBox.IsEnabled = enable;
+            TrackGrid.IsEnabled = enable;
+            BrowseFolderButton.IsEnabled = enable;
+            AnalyseButton.IsEnabled = enable;
+            BatchButton.IsEnabled = enable;
+            InvertTrackButton.IsEnabled = enable;
+            SelectAllFileButton.IsEnabled = enable;
+            SelectAllTrackButton.IsEnabled = enable;
+            SelectNoneFileButton.IsEnabled = enable;
+            SelectNoneTrackButton.IsEnabled = enable;
+        }
+
+        private void OnCellEditEnding(object sender, DataGridCellEditEndingEventArgs e)
+        {
+            // Check if the edited column is the language code column
+            if (e.Column == LanguageCodeColumn)
+            {
+                // Get the edited text box
+                var textBox = e.EditingElement as TextBox;
+
+                // Validate the language code
+                if (!IsValidLanguageCode(textBox.Text))
+                {
+                    // Cancel the edit and show an error message
+                    e.Cancel = true;
+                    MessageBox.Show($"The language code \"{textBox.Text}\" is invalid.\r\nPlease enter a valid ISO 639-2 language code.", "Invalid language code", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+            }
+        }
+
+        private static bool IsValidLanguageCode(string code)
+        {
+            if (!Regex.IsMatch(code, @"^[a-z]{3}$"))
+            {
+                return false;
+            }
+
+            try
+            {
+                CultureInfo.GetCultureInfoByIetfLanguageTag(code);
+                return true;
+            }
+            catch (CultureNotFoundException)
+            {
+                return false;
+            }
         }
 
         private void PlayNotificationSound()

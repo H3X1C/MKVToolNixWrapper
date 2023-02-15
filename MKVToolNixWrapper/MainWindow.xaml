@@ -62,7 +62,7 @@
             </ListBox.ItemContainerStyle>
         </ListBox>
 
-        <DataGrid x:Name="TrackGrid" ItemsSource="{Binding TrackList}" AutoGenerateColumns="False" CanUserDeleteRows="False" CanUserAddRows="False" Grid.Row="2" Grid.Column="2" Grid.ColumnSpan="1">
+        <DataGrid x:Name="TrackGrid" ItemsSource="{Binding TrackList}" CellEditEnding="OnCellEditEnding" AutoGenerateColumns="False" CanUserDeleteRows="False" CanUserAddRows="False" Grid.Row="2" Grid.Column="2" Grid.ColumnSpan="1">
             <DataGrid.Columns>
                 <DataGridTemplateColumn Header="Include">
                     <DataGridTemplateColumn.CellTemplate>
@@ -73,7 +73,7 @@
                 </DataGridTemplateColumn>
                 <DataGridTextColumn Header="Id" Binding="{Binding Id}" IsReadOnly="True" />
                 <DataGridTextColumn Header="Name" Binding="{Binding Name}" />
-                <DataGridTextColumn Header="Language" Binding="{Binding Language}" IsReadOnly="True"/>
+                <DataGridTextColumn x:Name="LanguageCodeColumn" Header="Language" Binding="{Binding Language}"/>
                 <DataGridTextColumn Header="Type" Binding="{Binding Type}" IsReadOnly="True"/>
                 <DataGridTextColumn Header="Codec" Binding="{Binding Codec}" IsReadOnly="True"/>
                 <DataGridTemplateColumn Header="Default Flag">

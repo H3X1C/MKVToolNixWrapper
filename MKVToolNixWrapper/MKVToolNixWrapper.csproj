@@ -6,6 +6,23 @@
 	<UseWindowsForms>true</UseWindowsForms>
     <Nullable>enable</Nullable>
     <UseWPF>true</UseWPF>
+    <ApplicationIcon>Assets\Berserk.ico</ApplicationIcon>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="Assets\Info.txt" />
+    <None Remove="Assets\SH2Menu.wav" />
+    <None Remove="Assets\SH3Menu.wav" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="Assets\Berserk.ico" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Assets\Info.txt" />
+    <EmbeddedResource Include="Assets\SH2Menu.wav" />
+    <EmbeddedResource Include="Assets\SH3Menu.wav" />
+  </ItemGroup>
 
 </Project>

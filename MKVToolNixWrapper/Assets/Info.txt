@@ -1,0 +1,73 @@
+﻿==========================
+--- MKVToolNix Wrapper ---
+==========================
+
+------ Introduction ------
+The tool is a wrapper for mkvmerge.exe which ships as part of MKVToolNix (collection of tools for the Matroska media container format (.MKV)).
+It's purpose is to be able to quickly batch edit multiple MKV files at once (rename, remove, set default / forced flags for tracks within each MKV file)
+
+-------- Use case --------
+You have a series of anime that has it's default audio track as English, the show also has a Japanese audio track and multiple subtitle tracks for various languages but sadly your desired subtitle track isn't default.
+Using MKVToolNix Wrapper you can quickly remove the tracks you don't want such as English audio track, French subtitles and also default the tracks you want such as English subtitles.
+End result is reduced file size and the convenience of opening the file in your chosen player and it automatically defaulting to your own personal preference of subtitles and audio.
+
+----- Best Practices -----
+Be consistent with naming! Here are some examples of practices to follow:
+e.g. 
+	Subtitle naming: 'English Subs'
+	Video naming: removing video name if it's just being used for branding as it serves no purpose
+	Audio naming: 'Japanese E-AC-3' with E-AC-3 being the codec used for the audio
+
+Only set the forced flag for subtitles! It makes sense to set this flag on english subtitles if the audio track is Japanese and you are are an english speaker.
+Advised to also set the default flag on the best suited sub title track, in most cases this will be the same track as the forced track.
+
+------ Instructions ------
+1) Click 'Browse' and select the folder that contains your .mkv files (This can be at season level: "~\Attack On Titan (2013)\Season 1" or show level "~\Attack On Titan (2013)")
+2) You will now see on the list a list of all the .mkv files it has found, double check this list contains the files you expect, you also have the opportunity to not include certain files, you can do this by unchecking them
+3) When happy with your selection click the 'Analyse' button (This will use your first file as a comparison point and compare it against all other files in the directory you selected, it checks to ensure subtitle names, audio tracks etc match)
+	To see progress look at the 'Output:' at the bottom of the window
+4) On completion of a successful analysis the 'Start Batch' button will now be enabled and the tracks table will be populated
+	Now customise the track settings to your liking, remembering you can also rename tracks! (See FAQ below for explanations on what each column does)
+5) click 'Start Batch' and watch the 'Output:' text to see the progress, upon completion you will find the outputted files in the 'MasteredFiles' folder (Located in same directory as your .mkv files)
+Your done, open your outputted files in your favourite media player to confirm they are as you expected!
+
+---------- FAQ ----------
+Q) During analysis one or more of my files had a 'FAIL' so I am unable to click 'Start Batch', help!
+A) A file fails when there are differences in track count, track naming or track ordering when compared to the first file it analysed (Audio, Video and Subtitle each having their own set of tracks e.g. 'English Subs' is it's own subtitle track)
+	This can happen when authors of these files use a variety of sources to make up a season or just aren't very consistent with their settings
+	To progress all you have to do is deselect the files that have the 'FAIL' status, you can see which have failed by reviewing the 'Output:' section. Once you have done this click 'Start Batch' again, if all is well you should now have PASSES
+
+Q) What does the 'Including' column mean in the Tracks table?
+A) If it is ticked it will be included as part of the outputted files, if it is unchecked the given track will be removed
+	E.g. Deselecting the 'English' Audio will result in the outputted file no longer having a English audio track
+
+Q) What does the 'Id' column mean in the Tracks table?
+A) the track ID is a unique identifier assigned to each track within the container. A track refers to a specific type of data within the MKV file, such as video, audio, subtitles, or attachments.
+	The track ID allows the media player or decoder to correctly identify and play each track. (You cannot edit this id in this tool)
+
+Q) What does the 'Name' column mean in the Tracks table?
+A) This is simply the display name for the given track that is shown in your media player when selecting subtitle tracks / audio tracks / video tracks e.g. 'English Signs & Songs'
+	This field is also optional meaning you can delete the text and then your media player will simply reference your track via it's ID e.g. Track 1, Track 2,...
+
+Q) What does the 'Language' column mean in the Tracks table?
+A) Each track can be assigned a language code that identifies the language of the content in that track.
+	This language code can help media players and other software to select and display the appropriate language for the user, such as for subtitles or audio tracks. (You cannot edit this id in this tool)
+
+Q) What does the 'Type' column mean in the Tracks table?
+A) Each track can be assigned a track type that identifies the type of content in that track. This information is used by media players and other software to identify how to play and display the content in the track.
+	e.g. Video track, Audio track, Subtitle track
+
+Q) What does the 'Codec' column mean in the Tracks table?
+A) Displays the type of codec used for the given track e.g. subtitle track could have a codec of type 'S_TEXT/ASS'
+	This info is purely there to provide you with more information to more easily distinguish between the tracks
+
+Q) What does the 'Default Flag' column mean in the Tracks table?
+A) Each track can have a default flag that indicates whether that track should be used as the default track when playing the file.
+	The default track is the track that is selected by default when the MKV file is played, without the user needing to manually choose it given they have subtitles turned on globally for the player.
+	e.g. if you set the 'English Subs' track as default your media player will automatically select this track
+	Note: Not all media players respect this flag
+
+Q) What does the 'Forced Flag' column mean in the Tracks table?
+A) The "forced flag" is a metadata attribute that can be assigned to certain subtitle tracks to indicate that the subtitles in that track should always be displayed, even if the user has turned off subtitles.
+	It is typically used for subtitles that are essential to the understanding of the content.
+	Note: Not all media players respect this flag and this flag is only applicable to Subtitle tracks!

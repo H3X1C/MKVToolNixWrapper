@@ -6,6 +6,9 @@
 This program is a wrapper for mkvmerge.exe which ships as part of MKVToolNix (collection of tools for the Matroska media container format (.MKV)).
 It's purpose is to be able to quickly batch edit multiple MKV files at once (rename, remove, set default / forced flags for tracks within each MKV file)
 
+-- Installing MKV Merge --
+The easiest way to get mkvmerge.exe is to download and install mkvtoolnix which you can find here: https://mkvtoolnix.download/downloads.html#windows
+
 -------- Use case --------
 You have a series of anime that has it's default audio track as English, the show also has a Japanese audio track and multiple subtitle tracks for various languages but sadly your desired subtitle track isn't default.
 Using MKVToolNix Wrapper you can quickly remove the tracks you don't want such as English audio track, French subtitles and also default the tracks you want such as English subtitles.
@@ -36,6 +39,9 @@ Q) During analysis one or more of my files had a 'FAIL' so I am unable to click 
 A) A file fails when there are differences in track count, track naming or track ordering when compared to the first file it analysed (Audio, Video and Subtitle each having their own set of tracks e.g. 'English Subs' is it's own subtitle track)
 	This can happen when authors of these files use a variety of sources to make up a season or just aren't very consistent with their settings
 	To progress all you have to do is deselect the files that have the 'FAIL' status, you can see which have failed by reviewing the 'Output:' section. Once you have done this click 'Start Batch' again, if all is well you should now have PASSES
+
+Q) What do the colours in the file list mean?
+A) Red = The file failed it's analysis | Dark Red = An error occured while writing the file during the batch process | Green = File successfully written as part of batch | Orange = File writing is in progress as part of batch
 
 Q) What does the 'Including' column mean in the Tracks table?
 A) If it is ticked it will be included as part of the outputted files, if it is unchecked the given track will be removed

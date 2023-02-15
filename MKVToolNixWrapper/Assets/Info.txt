@@ -84,3 +84,4 @@ A) The "forced flag" is a metadata attribute that can be assigned to certain sub
 15/02/2023 - v1.0.0.1 - Code cleanup
 	Removed uneeded usings
 	Renamed and better organised DTO's
+	Removed filelistbox from the disable ui method that occurs during batch and analysis

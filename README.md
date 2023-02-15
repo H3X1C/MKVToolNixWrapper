@@ -1,7 +1,7 @@
 # MKVToolNixWrapper
 
 ## Introduction
-The tool is a wrapper for mkvmerge.exe which ships as part of MKVToolNix (collection of tools for the Matroska media container format (.MKV)).
+This program is a wrapper for mkvmerge.exe which ships as part of MKVToolNix (collection of tools for the Matroska media container format (.MKV)).
 It's purpose is to be able to quickly batch edit multiple MKV files at once (rename, remove, set default / forced flags for tracks within each MKV file)
 
 ## Use case

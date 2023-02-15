@@ -485,7 +485,6 @@ namespace MKVToolNixWrapper
         // ToDo: Instead of a dumb toggle have a enum that dictates stage, dependent on the stage activate x,y,z ui element
         private void ToggleUI(bool enable)
         {
-            FileListBox.IsEnabled = enable;
             TrackGrid.IsEnabled = enable;
             BrowseFolderButton.IsEnabled = enable;
             AnalyseButton.IsEnabled = enable;

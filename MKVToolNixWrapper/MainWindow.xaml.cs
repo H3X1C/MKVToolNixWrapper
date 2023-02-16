@@ -15,6 +15,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media.Animation;
+using System.Windows.Shell;
 using System.Windows.Threading;
 
 namespace MKVToolNixWrapper
@@ -44,8 +45,9 @@ namespace MKVToolNixWrapper
             BatchButton.IsEnabled = false;
             PlayIntroSound();
             mkvMergeExistsCheck();
-            Dispatcher.Invoke(() => StartPulsing(BrowseFolderButton, 2000));
-            Dispatcher.Invoke(() => StartPulsing(SelectedFolderPathLabel, 2000));
+            StartPulsing(BrowseFolderButton, 2000);
+            StartPulsing(SelectedFolderPathLabel, 2000);
+            TaskbarItemInfo.ProgressValue = 100;
         }
 
         private void mkvMergeExistsCheck()
@@ -152,6 +154,8 @@ namespace MKVToolNixWrapper
             await Task.Run(() =>
             {
                 WriteOutputLine("**** ANALYSIS START ****");
+                // in progress
+                Dispatcher.Invoke(() => TaskbarItemInfo.ProgressState = TaskbarItemProgressState.Indeterminate);
 
                 // Clear any previously processes track items
                 TrackList = new List<TrackListMeta>();
@@ -262,6 +266,8 @@ namespace MKVToolNixWrapper
                     Dispatcher.Invoke(() => BatchButton.IsEnabled = true);
                     Dispatcher.Invoke(() => StartPulsing(BatchButton, 2000));
                     WriteOutputLine("Analysis Completed - Outcome: PASS");
+                    // Taskbar - Success
+                    Dispatcher.Invoke(() => TaskbarItemInfo.ProgressState = TaskbarItemProgressState.Normal);
                 }
                 else
                 {
@@ -271,7 +277,10 @@ namespace MKVToolNixWrapper
                     WriteOutputLine("Explanation: Unable to unlock batching as the selected files have differing sub/audio/video track setup, proceeding would result in missmatched tracks");
                     WriteOutputLine("Resolution: Deselect the MKV's that have FAILED and process them on their own. Only once all selected files PASS is the batch button unlocked");
                     SystemSounds.Hand.Play();
+                    // Taskbar - Error
+                    Dispatcher.Invoke(() => TaskbarItemInfo.ProgressState = TaskbarItemProgressState.Error);
                 }
+
                 WriteOutputLine($"**** ANALYSIS END ****");
                 WriteOutputLine();
             });
@@ -405,6 +414,8 @@ namespace MKVToolNixWrapper
             await Task.Run(async () =>
             {
                 WriteOutputLine("**** BATCH START ****");
+                // Taskbar - In Progress
+                Dispatcher.Invoke(() => TaskbarItemInfo.ProgressState = TaskbarItemProgressState.Indeterminate);
 
                 // Force mouse spinner
                 Dispatcher.Invoke(() => Mouse.OverrideCursor = System.Windows.Input.Cursors.Wait);
@@ -494,9 +505,9 @@ namespace MKVToolNixWrapper
                         }
                         else
                         {
-                            //SystemSounds.Hand.Play();
                             filePath.Status = FileStatusEnum.Error;
                             WriteOutputLine($"Writing Error! - Please review the output for details {standardError}");
+                            SystemSounds.Hand.Play();
                         }
                         WriteOutputLine();
                         ForceSetControlItemsSourceBinding(FileListBox, FileMetaList);
@@ -512,8 +523,12 @@ namespace MKVToolNixWrapper
                 // Restore mouse cursor
                 Dispatcher.Invoke(() => Mouse.OverrideCursor = null);
 
-                WriteOutputLine("**** BATCH END ****");
+                // Taskbar - Success
+                Dispatcher.Invoke(() => TaskbarItemInfo.ProgressState = TaskbarItemProgressState.Normal);
+
                 PlayNotificationSound();
+
+                WriteOutputLine("**** BATCH END ****");
             });
             ToggleUI(true);
         }

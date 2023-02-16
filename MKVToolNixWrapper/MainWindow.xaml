@@ -3,6 +3,9 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="MKVToolNixWrapper" Height="844" Width="1578"
         DataContext="{Binding RelativeSource={RelativeSource Self}}" WindowStartupLocation="CenterScreen">
+    <Window.TaskbarItemInfo>
+        <TaskbarItemInfo />
+    </Window.TaskbarItemInfo>
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>

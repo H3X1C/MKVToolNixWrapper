@@ -508,6 +508,8 @@ namespace MKVToolNixWrapper
                             filePath.Status = FileStatusEnum.Error;
                             WriteOutputLine($"Writing Error! - Please review the output for details {standardError}");
                             SystemSounds.Hand.Play();
+                            // Taskbar - Error
+                            Dispatcher.Invoke(() => TaskbarItemInfo.ProgressState = TaskbarItemProgressState.Error);
                         }
                         WriteOutputLine();
                         ForceSetControlItemsSourceBinding(FileListBox, FileMetaList);

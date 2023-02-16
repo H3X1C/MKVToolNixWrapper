@@ -87,3 +87,7 @@ A) The "forced flag" is a metadata attribute that can be assigned to certain sub
 	Renamed and better organised DTO's
 	Removed filelistbox from the disable ui method that occurs during batch and analysis
 	Updated the info file instructions
+
+15/02/2023 - v1.0.0.2 - Better progress output
+	Progress % output on batching now updates the line instead of output a new line for each percent
+	Track spawned mkvmerge processes and kill them on exit

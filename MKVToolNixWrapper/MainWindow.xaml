@@ -54,7 +54,7 @@
                             <Setter Property="Background" Value="#51FF6B" />
                         </DataTrigger>
                         <DataTrigger Binding="{Binding Status}" Value="5">
-                            <Setter Property="Background" Value="#B71C1C" />
+                            <Setter Property="Background" Value="#b81200" />
                         </DataTrigger>
                     </Style.Triggers>
                 </Style>

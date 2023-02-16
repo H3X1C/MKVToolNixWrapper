@@ -1,6 +1,7 @@
 ﻿using MKVToolNixWrapper.Dtos;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
@@ -26,6 +27,7 @@ namespace MKVToolNixWrapper
         private List<FileMeta> FileMetaList { get; set; } = new List<FileMeta>();
         private List<TrackListMeta> TrackList { get; set; } = new List<TrackListMeta>();
         private static readonly string MkvMergePath = "C:\\Program Files\\MKVToolNix\\mkvmerge.exe";
+        private List<int> ProcessIdTracker { get; set; } = new List<int>();
 
         public MainWindow()
         {
@@ -126,6 +128,7 @@ namespace MKVToolNixWrapper
                 {
                     SelectedFolderPathLabel.Content = path;
                     WriteOutputLine($"Source folder successfully validated - MKV count: {mkvFiles.Count()}");
+                    WriteOutputLine();
                     AnalyseButton.IsEnabled = true;
 
                     // Pulse the analyse button
@@ -148,8 +151,10 @@ namespace MKVToolNixWrapper
         {
             await Task.Run(() =>
             {
-                WriteOutputLine("Analysis has started...");
+                WriteOutputLine("**** ANALYSIS START ****");
 
+                // Clear any previously processes track items
+                TrackList = new List<TrackListMeta>();
                 Dispatcher.Invoke(() => ToggleUI(false));
 
                 // Clear an failed analysis files
@@ -252,22 +257,23 @@ namespace MKVToolNixWrapper
 
                 if (allPassed)
                 {
-                    WriteOutputLine($"Analysis outcome: PASS");
-                    Dispatcher.Invoke(() => TrackGrid.ItemsSource = TrackList);
+                    ForceSetControlItemsSourceBinding(TrackGrid, TrackList);
                     Dispatcher.Invoke(() => TrackGrid.IsEnabled = true);
                     Dispatcher.Invoke(() => BatchButton.IsEnabled = true);
-                    // Pulse the BatchButton
                     Dispatcher.Invoke(() => StartPulsing(BatchButton, 2000));
+                    WriteOutputLine("Analysis Completed - Outcome: PASS");
                 }
                 else
                 {
                     Dispatcher.Invoke(() => BatchButton.IsEnabled = false);
                     Dispatcher.Invoke(() => TrackGrid.IsEnabled = false);
-                    WriteOutputLine($"Analysis Completed - Outcome: FAIL");
-                    WriteOutputLine($"Explanation: Unable to unlock batching as the selected files have differing sub/audio/video track setup, proceeding would result in missmatched tracks");
-                    WriteOutputLine($"Resolution: Deselect the MKV's that have FAILED and process them on their own. Only once all selected files PASS is the batch button unlocked");
+                    WriteOutputLine("Analysis Completed - Outcome: FAIL");
+                    WriteOutputLine("Explanation: Unable to unlock batching as the selected files have differing sub/audio/video track setup, proceeding would result in missmatched tracks");
+                    WriteOutputLine("Resolution: Deselect the MKV's that have FAILED and process them on their own. Only once all selected files PASS is the batch button unlocked");
                     SystemSounds.Hand.Play();
                 }
+                WriteOutputLine($"**** ANALYSIS END ****");
+                WriteOutputLine();
             });
         }
 
@@ -337,7 +343,8 @@ namespace MKVToolNixWrapper
                 };
 
                 process.Start();
-                
+                ProcessIdTracker.Add(process.Id);
+
                 var standardOuput = process.StandardOutput.ReadToEnd();
                 var standardErrorOutput = process.StandardError.ReadToEnd();
                 if (!string.IsNullOrEmpty(standardErrorOutput))
@@ -345,6 +352,7 @@ namespace MKVToolNixWrapper
                     WriteOutputLine($"An error occured with mkvmerge.exe identify: {standardErrorOutput}");
                 }
                 process.WaitForExit();
+                ProcessIdTracker.Remove(process.Id);
                 return standardOuput;
             }
             catch (Exception ex)
@@ -354,13 +362,36 @@ namespace MKVToolNixWrapper
             }
         }
 
-        private void WriteOutputLine(string text)
+        private void WriteOutputLine(string text = "", bool replaceLastLine = false)
         {
-            Dispatcher.Invoke(() =>
+            try
             {
-                OutputTextBox.Text += $"{DateTime.Now} - {text}\r\n";
-                OutputTextBox.ScrollToEnd();
-            });
+                Dispatcher.Invoke(() =>
+                {
+                    if (replaceLastLine)
+                    {
+                        int secondToLastIndex = OutputTextBox.Text.LastIndexOf("\r\n", OutputTextBox.Text.Length - 3);
+                        if (secondToLastIndex >= 0)
+                        {
+                            OutputTextBox.Text = OutputTextBox.Text.Substring(0, secondToLastIndex + 2);
+                        }
+                    }
+
+                    if (string.IsNullOrEmpty(text))
+                    {
+                        OutputTextBox.Text += "\r\n";
+                    }
+                    else
+                    {
+                        OutputTextBox.Text += $"{DateTime.Now} - {text}\r\n";
+                    }
+                    OutputTextBox.ScrollToEnd();
+                });
+            }
+            catch (Exception ex)
+            {
+                Trace.WriteLine($"Failed to write to output window: {ex.Message}");
+            }
         }
 
         private void AnalyseButton_Click(object sender, RoutedEventArgs e)
@@ -371,9 +402,9 @@ namespace MKVToolNixWrapper
         private async void BatchButton_Click(object sender, RoutedEventArgs e)
         {
             ToggleUI(false);
-            await Task.Run(() =>
+            await Task.Run(async () =>
             {
-                WriteOutputLine("Batching process has started...");
+                WriteOutputLine("**** BATCH START ****");
 
                 // Force mouse spinner
                 Dispatcher.Invoke(() => Mouse.OverrideCursor = System.Windows.Input.Cursors.Wait);
@@ -440,29 +471,34 @@ namespace MKVToolNixWrapper
                                 CreateNoWindow = true,
                             }
                         };
-
+                      
                         process.OutputDataReceived += (sender, e) => {
                             if (e.Data != null)
                             {
-                                WriteOutputLine(e.Data);
+                                // If it's a progress line (but not 0%) we set replace last line to true
+                                WriteOutputLine(e.Data, Regex.IsMatch(e.Data, @"^Progress: [1-9]\d*%$"));
                             }
                         };
 
                         process.Start();
+                        ProcessIdTracker.Add(process.Id);
                         process.BeginOutputReadLine();
                         process.WaitForExit();
+                        ProcessIdTracker.Remove(process.Id);
 
                         var standardError = process.StandardError.ReadToEnd();
-                        if (string.IsNullOrEmpty(standardError) && File.Exists(outputFilePath))
+                        if (string.IsNullOrEmpty(standardError) && File.Exists(outputFilePath) && process.ExitCode == 0)
                         {
                             filePath.Status = FileStatusEnum.WrittenFile;
                             WriteOutputLine($"Writing Complete  \"{outputFilePath}\"");
                         }
                         else
                         {
+                            //SystemSounds.Hand.Play();
                             filePath.Status = FileStatusEnum.Error;
-                            WriteOutputLine($"Writing Error occured: {standardError}");
+                            WriteOutputLine($"Writing Error! - Please review the output for details {standardError}");
                         }
+                        WriteOutputLine();
                         ForceSetControlItemsSourceBinding(FileListBox, FileMetaList);
 
                     }
@@ -476,7 +512,7 @@ namespace MKVToolNixWrapper
                 // Restore mouse cursor
                 Dispatcher.Invoke(() => Mouse.OverrideCursor = null);
 
-                WriteOutputLine("Batching process has completed!");
+                WriteOutputLine("**** BATCH END ****");
                 PlayNotificationSound();
             });
             ToggleUI(true);
@@ -616,6 +652,29 @@ namespace MKVToolNixWrapper
                     dataGrid.ItemsSource = items;
                 }
             });
+        }
+
+        protected override void OnClosing(CancelEventArgs e)
+        {
+            // Check for any running mkvmerge processes we started and kill them
+            foreach (int processId in ProcessIdTracker)
+            {
+                try
+                {
+                    Process process = Process.GetProcessById(processId);
+                    if (process != null && !process.HasExited)
+                    {
+                        process.Kill();
+                        process.WaitForExit();
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Trace.WriteLine($"Failed to kill process with ID {processId}: {ex.Message}");
+                }
+            }
+            
+            base.OnClosing(e);
         }
     }
 }

@@ -20,9 +20,6 @@ using System.Windows.Threading;
 
 namespace MKVToolNixWrapper
 {
-    /// <summary>
-    /// Interaction logic for MainWindow.xaml
-    /// </summary>
     public partial class MainWindow : Window
     { 
         private List<FileMeta> FileMetaList { get; set; } = new List<FileMeta>();
@@ -34,6 +31,7 @@ namespace MKVToolNixWrapper
         {
             InitializeComponent();
             Loaded += MainWindow_Loaded;
+            Title = $"MKVToolNixWrapper v{Assembly.GetExecutingAssembly().GetName().Version}";
         }
 
         private void MainWindow_Loaded(object sender, RoutedEventArgs e)
@@ -44,13 +42,13 @@ namespace MKVToolNixWrapper
             AnalyseButton.IsEnabled = false;
             BatchButton.IsEnabled = false;
             PlayIntroSound();
-            mkvMergeExistsCheck();
+            MkvMergeExistsCheck();
             StartPulsing(BrowseFolderButton, 2000);
             StartPulsing(SelectedFolderPathLabel, 2000);
             TaskbarItemInfo.ProgressValue = 100;
         }
 
-        private void mkvMergeExistsCheck()
+        private void MkvMergeExistsCheck()
         {
             if(File.Exists(MkvMergePath))
             {
@@ -64,7 +62,7 @@ namespace MKVToolNixWrapper
             }
         }
 
-        private async void StartPulsing(UIElement element, int durationMs)
+        private static async void StartPulsing(UIElement element, int durationMs)
         {
             // Setup storyboard + animation
             var storyboard = new Storyboard();
@@ -132,10 +130,7 @@ namespace MKVToolNixWrapper
                     WriteOutputLine($"Source folder successfully validated - MKV count: {mkvFiles.Count()}");
                     WriteOutputLine();
                     AnalyseButton.IsEnabled = true;
-
-                    // Pulse the analyse button
                     StartPulsing(AnalyseButton, 2000);
-
                     // Populate file list
                     FileMetaList = mkvFiles.Select(x => new FileMeta() { FilePath = x, Include = true, Status = FileStatusEnum.Unprocessed }).ToList();
                     FileListBox.ItemsSource = FileMetaList;
@@ -154,7 +149,6 @@ namespace MKVToolNixWrapper
             await Task.Run(() =>
             {
                 WriteOutputLine("**** ANALYSIS START ****");
-                // in progress
                 Dispatcher.Invoke(() => TaskbarItemInfo.ProgressState = TaskbarItemProgressState.Indeterminate);
 
                 // Clear any previously processes track items
@@ -266,7 +260,6 @@ namespace MKVToolNixWrapper
                     Dispatcher.Invoke(() => BatchButton.IsEnabled = true);
                     Dispatcher.Invoke(() => StartPulsing(BatchButton, 2000));
                     WriteOutputLine("Analysis Completed - Outcome: PASS");
-                    // Taskbar - Success
                     Dispatcher.Invoke(() => TaskbarItemInfo.ProgressState = TaskbarItemProgressState.Normal);
                 }
                 else
@@ -277,7 +270,6 @@ namespace MKVToolNixWrapper
                     WriteOutputLine("Explanation: Unable to unlock batching as the selected files have differing sub/audio/video track setup, proceeding would result in missmatched tracks");
                     WriteOutputLine("Resolution: Deselect the MKV's that have FAILED and process them on their own. Only once all selected files PASS is the batch button unlocked");
                     SystemSounds.Hand.Play();
-                    // Taskbar - Error
                     Dispatcher.Invoke(() => TaskbarItemInfo.ProgressState = TaskbarItemProgressState.Error);
                 }
 
@@ -315,7 +307,7 @@ namespace MKVToolNixWrapper
             return true;
         }
 
-        private List<string> GetMkvFilesInFolder(string path)
+        private static List<string> GetMkvFilesInFolder(string path)
         {
             return Directory.GetFiles(path, "*.mkv", SearchOption.AllDirectories).Where(filePath => !filePath.Contains("\\MasteredFiles\\")).ToList();
         }
@@ -411,7 +403,7 @@ namespace MKVToolNixWrapper
         private async void BatchButton_Click(object sender, RoutedEventArgs e)
         {
             ToggleUI(false);
-            await Task.Run(async () =>
+            await Task.Run(() =>
             {
                 WriteOutputLine("**** BATCH START ****");
                 // Taskbar - In Progress
@@ -482,8 +474,9 @@ namespace MKVToolNixWrapper
                                 CreateNoWindow = true,
                             }
                         };
-                      
-                        process.OutputDataReceived += (sender, e) => {
+
+                        process.OutputDataReceived += (sender, e) =>
+                        {
                             if (e.Data != null)
                             {
                                 // If it's a progress line (but not 0%) we set replace last line to true
@@ -542,11 +535,12 @@ namespace MKVToolNixWrapper
             BrowseFolderButton.IsEnabled = enable;
             AnalyseButton.IsEnabled = enable;
             BatchButton.IsEnabled = enable;
-            InvertTrackButton.IsEnabled = enable;
+            InvertFileButton.IsEnabled = enable;
             SelectAllFileButton.IsEnabled = enable;
             SelectAllTrackButton.IsEnabled = enable;
             SelectNoneFileButton.IsEnabled = enable;
             SelectNoneTrackButton.IsEnabled = enable;
+            DeselectFailsButton.IsEnabled = enable;
         }
 
         private void OnCellEditEnding(object sender, DataGridCellEditEndingEventArgs e)
@@ -638,7 +632,7 @@ namespace MKVToolNixWrapper
             FileListBox.ItemsSource = FileMetaList;
         }
 
-        private void InvertTrackButton_Click(object sender, RoutedEventArgs e)
+        private void InvertFileButton_Click(object sender, RoutedEventArgs e)
         {
             FileMetaList.ForEach(item => item.Include = !item.Include);
             FileListBox.ItemsSource = null;
@@ -650,6 +644,18 @@ namespace MKVToolNixWrapper
             TrackGrid.ItemsSource = null;
             TrackGrid.IsEnabled = false;
             BatchButton.IsEnabled = false;
+        }
+
+        private void DeselectFailsButton_Click(object sender, RoutedEventArgs e)
+        {
+            FileMetaList.ForEach(x =>
+            {
+                if (x.Status == FileStatusEnum.FailedAnalysis)
+                {
+                    x.Include = false;
+                }
+            });
+            ForceSetControlItemsSourceBinding(FileListBox, FileMetaList);
         }
 
         // Hack to avoid using INotifyPropertyChanged as it's messy to implement and restricts us to only using ObservableCollection :/

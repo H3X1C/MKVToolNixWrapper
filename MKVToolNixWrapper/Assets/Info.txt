@@ -15,9 +15,9 @@ The easiest way to get mkvmerge.exe is to download and install mkvtoolnix which 
 Be consistent with naming! Here are some examples of practices to follow:
 e.g. 
 	Subtitle naming: 'English Full'
-	Video naming:	Removing video name if it's just being used for branding as it serves no purpose, media players will just call it Track 1
+	Video naming:	'' Removing video name if it's just being used for branding as it serves no purpose, media players will just call it Track 1
 	Video langauge:	'und'
-	Audio naming:	'Japanese E-AC-3' with E-AC-3 being the codec used for the audio
+	Audio naming:	'Japanese'
 
 Only set the forced flag for subtitles! It makes sense to set this flag on english subtitles if the audio track is Japanese and you are are an english speaker.
 Advised to also set the default flag on the best suited sub title track, in most cases this will be the same track as the forced track.
@@ -88,7 +88,8 @@ A) The "forced flag" is a metadata attribute that can be assigned to certain sub
 	Removed filelistbox from the disable ui method that occurs during batch and analysis
 	Updated the info file instructions
 
-15/02/2023 - v1.0.0.2 - Better progress output
+15/02/2023 - v1.0.0.2 - QOL changes
 	Progress % output on batching now updates the line instead of output a new line for each percent
 	Track spawned mkvmerge processes and kill them on exit
 	Added basic taskbar progress support
+	Added a deselect fails button for the file list

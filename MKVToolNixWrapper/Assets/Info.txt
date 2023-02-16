@@ -3,42 +3,43 @@
 ==========================
 
 ------ Introduction ------
-This program is a wrapper for mkvmerge.exe which ships as part of MKVToolNix (collection of tools for the Matroska media container format (.MKV)).
-It's purpose is to be able to quickly batch edit multiple MKV files at once (rename, remove, set default / forced flags for tracks within each MKV file)
+This program is a wrapper for mkvmerge.exe which ships as part of MKVToolNix (collection of tools for .mkv files).
+This programs purpose is to facilitate the quick bulk editing of .MKV files, allowing you to edit audio, video and subtitle tracks.
+Editing includes removal of tracks, defaulting tracks, forcing tracks, renaming tracks and setting track language.
+It also accounts for scenarios where files have differing track setups, the analyse button flags offending files so they can be dealt with in isolation.
 
 -- Installing MKV Merge --
 The easiest way to get mkvmerge.exe is to download and install mkvtoolnix which you can find here: https://mkvtoolnix.download/downloads.html#windows
-
--------- Use case --------
-You have a series of anime that has it's default audio track as English, the show also has a Japanese audio track and multiple subtitle tracks for various languages but sadly your desired subtitle track isn't default.
-Using MKVToolNix Wrapper you can quickly remove the tracks you don't want such as English audio track, French subtitles and also default the tracks you want such as English subtitles.
-End result is reduced file size and the convenience of opening the file in your chosen player and it automatically defaulting to your own personal preference of subtitles and audio.
 
 ----- Best Practices -----
 Be consistent with naming! Here are some examples of practices to follow:
 e.g. 
 	Subtitle naming: 'English Full'
-	Video naming: removing video name if it's just being used for branding as it serves no purpose, media players will just call it Track 1
-	Audio naming: 'Japanese E-AC-3' with E-AC-3 being the codec used for the audio
+	Video naming:	Removing video name if it's just being used for branding as it serves no purpose, media players will just call it Track 1
+	Video langauge:	'und'
+	Audio naming:	'Japanese E-AC-3' with E-AC-3 being the codec used for the audio
 
 Only set the forced flag for subtitles! It makes sense to set this flag on english subtitles if the audio track is Japanese and you are are an english speaker.
 Advised to also set the default flag on the best suited sub title track, in most cases this will be the same track as the forced track.
+Also a good idea to default both the audio and video track
 
 ------ Instructions ------
 1) Click 'Browse' and select the folder that contains your .mkv files (This can be at season level: "~\Attack On Titan (2013)\Season 1" or show level "~\Attack On Titan (2013)")
-2) You will now see on the list a list of all the .mkv files it has found, double check this list contains the files you expect, you also have the opportunity to not include certain files, you can do this by unchecking them
-3) When happy with your selection click the 'Analyse' button (This will use your first file as a comparison point and compare it against all other files in the directory you selected, it checks to ensure subtitle names, audio tracks etc match)
+2) You will now see on the left panel a list of all the .mkv files it has found, double check this list contains the files you expect, you also have the opportunity to not include certain files, you can do this by unchecking them
+3) When happy with your selection click the 'Analyse' button (This will use your first file as a comparison point and compare it against all other files in the directory you selected, it checks to ensure subtitle names, audio tracks,.. match)
 	To see progress look at the 'Output:' at the bottom of the window
 4) On completion of a successful analysis the 'Start Batch' button will now be enabled and the tracks table will be populated
-	Now customise the track settings to your liking, remembering you can also rename tracks! (See FAQ below for explanations on what each column does)
+	Now customise the track settings to your liking, keep in mind you can rename tracks and languages! (See FAQ below for explanations on what each column does)
 5) click 'Start Batch' and watch the 'Output:' text to see the progress, upon completion you will find the outputted files in the 'MasteredFiles' folder (Located in same directory as your .mkv files)
 Your done, open your outputted files in your favourite media player to confirm they are as you expected!
 
 ---------- FAQ ----------
 Q) During analysis one or more of my files had a 'FAIL' so I am unable to click 'Start Batch', help!
-A) A file fails when there are differences in track count, track naming or track ordering when compared to the first file it analysed (Audio, Video and Subtitle each having their own set of tracks e.g. 'English Subs' is it's own subtitle track)
-	This can happen when authors of these files use a variety of sources to make up a season or just aren't very consistent with their settings
-	To progress all you have to do is deselect the files that have the 'FAIL' status, you can see which have failed by reviewing the 'Output:' section. Once you have done this click 'Start Batch' again, if all is well you should now have PASSES
+A) A file fails when there are differences in track count, track naming, track language and or track ordering when compared to the first file it analysed
+	(Audio, Video and Subtitle each having their own set of tracks e.g. 'English Subs' is it's own subtitle track)
+	FAILs can happen when authors of these files use a variety of sources to make up a season or just aren't very consistent with their settings
+	To progress all you have to do is deselect the files that have the 'FAIL' status, you can see which have failed by reviewing the 'Output:' section / red highlighting.
+	Once you have done this click 'Analyse' again, if all is well you should now have PASSES unlocking the 'Start Batch' button the track view panel.
 
 Q) What do the colours in the file list mean?
 A) Red = The file failed it's analysis | Dark Red = An error occured while writing the file during the batch process | Green = File successfully written as part of batch | Orange = File writing is in progress as part of batch
@@ -56,7 +57,7 @@ A) This is simply the display name for the given track that is shown in your med
 	This field is also optional meaning you can delete the text and then your media player will simply reference your track via it's ID e.g. Track 1, Track 2,...
 
 Q) What does the 'Language' column mean in the Tracks table?
-A) Each track can be assigned a language code that identifies the language of the content in that track.
+A) Each track can be assigned a ISO 639-2 language code e.g. jpn,eng,... that identifies the language of the content in that track.
 	This language code can help media players and other software to select and display the appropriate language for the user, such as for subtitles or audio tracks. You may edit this field!
 
 Q) What does the 'Type' column mean in the Tracks table?
@@ -85,3 +86,4 @@ A) The "forced flag" is a metadata attribute that can be assigned to certain sub
 	Removed uneeded usings
 	Renamed and better organised DTO's
 	Removed filelistbox from the disable ui method that occurs during batch and analysis
+	Updated the info file instructions

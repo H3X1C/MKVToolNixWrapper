@@ -20,6 +20,8 @@ using System.Windows.Threading;
 
 namespace MKVToolNixWrapper
 {
+    // TODO:
+    // Add support for re-id'ing the tracks, some uploaders randomly change ordering mid season like english becomes track 3 suddenly
     public partial class MainWindow : Window
     { 
         private List<FileMeta> FileMetaList { get; set; } = new List<FileMeta>();
@@ -166,7 +168,7 @@ namespace MKVToolNixWrapper
                 ForceSetControlItemsSourceBinding(FileListBox, FileMetaList);
 
                 // Force mouse spinner
-                Dispatcher.Invoke(() => Mouse.OverrideCursor = System.Windows.Input.Cursors.Wait);
+                Dispatcher.Invoke(() => Mouse.OverrideCursor = Cursors.Wait);
 
                 // Clear Track grid on the UI
                 Dispatcher.Invoke(() => TrackGrid.ItemsSource = null);
@@ -191,6 +193,15 @@ namespace MKVToolNixWrapper
                         continue;
                     }
 
+                    // Attachment info dump
+                    var attachmentCount = MKVInfo?.attachments.Count();
+                    var coverRegex = new Regex(@"cover.*\.(png|jpg)$", RegexOptions.IgnoreCase);
+                    var coverArtAttachments = MKVInfo?.attachments.Where(x => coverRegex.IsMatch(x.file_name));
+                    if(attachmentCount > 0)
+                    {
+                        WriteOutputLine($"Attachment(s) Found: {attachmentCount} {(coverArtAttachments?.Count() > 0 ? $"- Cover Art Found: {coverArtAttachments?.Count()}" : "")}");
+                    }
+                    
                     if (CompareFileItem == null)
                     {
                         // Populate comparison point
@@ -410,7 +421,7 @@ namespace MKVToolNixWrapper
                 Dispatcher.Invoke(() => TaskbarItemInfo.ProgressState = TaskbarItemProgressState.Indeterminate);
 
                 // Force mouse spinner
-                Dispatcher.Invoke(() => Mouse.OverrideCursor = System.Windows.Input.Cursors.Wait);
+                Dispatcher.Invoke(() => Mouse.OverrideCursor = Cursors.Wait);
 
                 var OutputPath = "\\MasteredFiles\\";
                 var mergeCommandString = "";
@@ -449,6 +460,11 @@ namespace MKVToolNixWrapper
                 mergeCommandString += string.Join(" ", TrackList.Where(x => x.Include).Select(x => $"--default-track {x.Id}:{(x.Default ? "yes" : "no")}")) + " ";
                 mergeCommandString += string.Join(" ", TrackList.Where(x => x.Include).Select(x => $"--forced-track {x.Id}:{(x.Forced ? "yes" : "no")}")) + " ";
                 mergeCommandString += string.Join(" ", TrackList.Where(x => x.Include).Select(x => $"--language {x.Id}:{x.Language}")) + " ";
+
+                if (Dispatcher.Invoke(() => (AttachmentsCheckbox.IsChecked == true)))
+                {
+                    mergeCommandString += "--no-attachments ";
+                }
 
                 foreach (var filePath in FileMetaList.Where(x => x.Include))
                 {
@@ -653,6 +669,18 @@ namespace MKVToolNixWrapper
                 if (x.Status == FileStatusEnum.FailedAnalysis)
                 {
                     x.Include = false;
+                }
+            });
+            ForceSetControlItemsSourceBinding(FileListBox, FileMetaList);
+        }
+
+        private void SelectUnprocessedButton_Click(object sender, RoutedEventArgs e)
+        {
+            FileMetaList.ForEach(x =>
+            {
+                if (x.Status == FileStatusEnum.Unprocessed)
+                {
+                    x.Include = true;
                 }
             });
             ForceSetControlItemsSourceBinding(FileListBox, FileMetaList);

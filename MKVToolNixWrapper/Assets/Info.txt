@@ -93,3 +93,8 @@ A) The "forced flag" is a metadata attribute that can be assigned to certain sub
 	Track spawned mkvmerge processes and kill them on exit
 	Added basic taskbar progress support
 	Added a deselect fails button for the file list
+
+23/07/2023 - v1.0.0.3 - Attachment analysis
+	During analysis step files are scanned for attachments and a summary of attachment count is provided and of which are cover art
+	Added remove attachments checkbox (When ticked will remove all attachments (cover art, fonts etc.) during processing) - Useful for removing watermarked cover art
+	Fixed bug with some buttons in the UI being placed incorrectly when window maximised

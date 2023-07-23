@@ -32,7 +32,8 @@
         <Button x:Name="SelectAllFileButton" Grid.Column="1" Grid.Row="1" Content="Select All" Width="80" HorizontalAlignment="Right" Margin="0,0,6,2" Click="SelectAllFileButton_Click"/>
         <Button x:Name="SelectNoneFileButton" Grid.Column="1" Grid.Row="1" Content="Select None" Width="80" HorizontalAlignment="Right" Margin="0,0,95,2" Click="SelectNoneFileButton_Click"/>
         <Button x:Name="InvertFileButton" Grid.Column="1" Grid.Row="1" Content="Invert" Width="80" HorizontalAlignment="Right" Margin="0,0,185,2" Click="InvertFileButton_Click"/>
-        <Button x:Name="DeselectFailsButton" Grid.Column="1" Grid.Row="1" Content="Deselect Fails" Width="80" HorizontalAlignment="Right" Margin="0,0,275,2" Click="DeselectFailsButton_Click"/>
+        <Button x:Name="DeselectFailsButton" Grid.Column="1" Grid.Row="1" Content="Deselect Fails" Margin="0,0,276,2" Click="DeselectFailsButton_Click" HorizontalAlignment="Right" Width="80"/>
+        <Button x:Name="SelectUnprocessedButton" Grid.Column="1" Grid.Row="1" Content="Select Unprocessed" Margin="0,0,367,2" Click="SelectUnprocessedButton_Click" HorizontalAlignment="Right" Width="115"/>
 
         <Label Content="Tracks" Height="27" Grid.Row="1" Grid.Column="3"/>
         <Button x:Name="SelectAllTrackButton" Grid.Column="3" Grid.Row="1" Content="Select All" Width="80" HorizontalAlignment="Right" Margin="0,0,6,2" Click="SelectAllTrackButton_Click"/>
@@ -98,5 +99,6 @@
 
         <Label Content="Output:" Height="27" Grid.Row="3" Grid.Column="0"/>
         <TextBox x:Name="OutputTextBox" IsReadOnly="True" ScrollViewer.HorizontalScrollBarVisibility="Auto" ScrollViewer.VerticalScrollBarVisibility="Auto" ScrollViewer.CanContentScroll="True" TextWrapping="Wrap" Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="3"/>
+        <CheckBox x:Name="AttachmentsCheckbox" Grid.Column="2" Content="Remove attachments (Cover Art, Fonts, etc.)" HorizontalAlignment="Left" Margin="10,5,0,0" VerticalAlignment="Top" IsChecked="False" Grid.Row="3"/>
     </Grid>
 </Window>

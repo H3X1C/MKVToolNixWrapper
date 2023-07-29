@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Configuration;
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
@@ -26,7 +27,7 @@ namespace MKVToolNixWrapper
     { 
         private List<FileMeta> FileMetaList { get; set; } = new List<FileMeta>();
         private List<TrackListMeta> TrackList { get; set; } = new List<TrackListMeta>();
-        private static readonly string MkvMergePath = "C:\\Program Files\\MKVToolNix\\mkvmerge.exe";
+        private static string MkvMergePath = "C:\\Program Files\\MKVToolNix\\mkvmerge.exe";
         private List<int> ProcessIdTracker { get; set; } = new List<int>();
 
         public MainWindow()
@@ -52,16 +53,77 @@ namespace MKVToolNixWrapper
 
         private void MkvMergeExistsCheck()
         {
-            if(File.Exists(MkvMergePath))
+            // Load "MkvMergePath" from the user-level configuration file if it exists
+            var roaming = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.PerUserRoamingAndLocal);
+            var fileMap = new ExeConfigurationFileMap();
+            fileMap.ExeConfigFilename = roaming.FilePath;
+            var config = ConfigurationManager.OpenMappedExeConfiguration(fileMap, ConfigurationUserLevel.None);
+            var appSettingsMkvMergePath = config?.AppSettings?.Settings["MkvMergePath"]?.Value;
+            MkvMergePath = string.IsNullOrEmpty(appSettingsMkvMergePath) ? MkvMergePath : appSettingsMkvMergePath;
+
+            if (File.Exists(MkvMergePath))
             {
                 WriteOutputLine($"Succesfully located MKVMerge at: \"{MkvMergePath}\"");
             }
             else
             {
-                MessageBox.Show($"Unable to locate mkvmerge.exe at:\r\n\"{MkvMergePath}\"\r\nThis tool will not function without mvkmerge!\r\n\r\nClick the 'Help' button for details on installing mkvmerge", "Failed to locate MKVMerge", MessageBoxButton.OK, MessageBoxImage.Error);
-                WriteOutputLine($"Failed to locate MKVMerge at: \"{MkvMergePath}\"");
-                WriteOutputLine("This tool will not function correctly without mkvmerge, please address this and then restart the application!");
+                MessageBox.Show($"Unable to locate mkvmerge.exe\r\nPlease click OK and locate your mkvmerge.exe", "Failed to locate MKVMerge", MessageBoxButton.OK, MessageBoxImage.Error);
+                WriteOutputLine($"Failed to locate MKVMerge at: \"{MkvMergePath}\" prompting user for location");
+
+                if (!SetMkvMergePath())
+                {
+                    ToggleUI(false);
+                }
             }
+        }
+
+        private bool SetMkvMergePath()
+        {
+            var openFileDlg = new System.Windows.Forms.OpenFileDialog
+            {
+                Title = "Locate your mkvmerge.exe",
+                Filter = "Executable Files|*.exe",
+                FileName = "mkvmerge.exe",
+                CheckFileExists = true,
+                CheckPathExists = true
+            };
+
+            var result = openFileDlg.ShowDialog();
+            if (result == System.Windows.Forms.DialogResult.OK)
+            {
+                if (Path.GetFileName(openFileDlg.FileName).Equals("mkvmerge.exe"))
+                {
+                    // Save to config
+                    var roaming = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.PerUserRoamingAndLocal);
+                    var fileMap = new ExeConfigurationFileMap();
+                    fileMap.ExeConfigFilename = roaming.FilePath;
+                    var config = ConfigurationManager.OpenMappedExeConfiguration(fileMap, ConfigurationUserLevel.None);
+                    if (config.AppSettings.Settings["MkvMergePath"] == null)
+                    {
+                        config.AppSettings.Settings.Add("MkvMergePath", openFileDlg.FileName);
+                    }
+                    else
+                    {
+                        config.AppSettings.Settings["MkvMergePath"].Value = openFileDlg.FileName;
+                    }
+                    config.Save(ConfigurationSaveMode.Modified);
+
+                    // Update path
+                    MkvMergePath = openFileDlg.FileName;
+                    WriteOutputLine($"Succesfully located MKVMerge at: \"{MkvMergePath}\"");
+                    return true;
+                }
+                else
+                {
+                    MessageBox.Show($"You have selected an invalid executable\r\nPlease ensure the file is correctly named 'mkvmerge.exe'\r\n\r\nPlease click on 'Help' if you need more information on MkvMerge", "Failed to locate MKVMerge", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+            }
+            else
+            {
+                SetMkvMergePath();
+            }
+
+            return false;
         }
 
         private static async void StartPulsing(UIElement element, int durationMs)
@@ -557,6 +619,7 @@ namespace MKVToolNixWrapper
             SelectNoneFileButton.IsEnabled = enable;
             SelectNoneTrackButton.IsEnabled = enable;
             DeselectFailsButton.IsEnabled = enable;
+            SelectUnprocessedButton.IsEnabled = enable;
         }
 
         private void OnCellEditEnding(object sender, DataGridCellEditEndingEventArgs e)

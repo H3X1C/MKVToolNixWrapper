@@ -98,3 +98,7 @@ A) The "forced flag" is a metadata attribute that can be assigned to certain sub
 	During analysis step files are scanned for attachments and a summary of attachment count is provided and of which are cover art
 	Added remove attachments checkbox (When ticked will remove all attachments (cover art, fonts etc.) during processing) - Useful for removing watermarked cover art
 	Fixed bug with some buttons in the UI being placed incorrectly when window maximised
+
+29/07/2023 - v1.0.0.4 - Custom MKV path & UI Fix
+	Select Unprocessed is now correctly disabled during analysis and batching process
+	If MkvMerge cannot be found in the default install location (C:\Program Files\MKVToolNix\mkvmerge.exe) user will be prompted to select a custom location which is saved to config

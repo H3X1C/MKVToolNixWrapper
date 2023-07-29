@@ -115,7 +115,7 @@ namespace MKVToolNixWrapper
                 }
                 else
                 {
-                    MessageBox.Show($"You have selected an invalid executable\r\nPlease ensure the file is correctly named 'mkvmerge.exe'\r\n\r\nPlease click on 'Help' if you need more information on MkvMerge", "Failed to locate MKVMerge", MessageBoxButton.OK, MessageBoxImage.Error);
+                    MessageBox.Show($"You have selected an invalid executable\r\nEnsure the file is correctly named 'mkvmerge.exe'\r\nPlease restart the application and try again\r\n\r\nClick on 'Help' if you need more information on MkvMerge", "Failed to locate MKVMerge", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
             }
             else
